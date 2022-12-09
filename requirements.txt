@@ -1,4 +1,4 @@
 pandas==1.5.2
 streamlit==1.15.2
 streamlit_option_menu==0.3.2
-~treamlit==1.15.1
+
