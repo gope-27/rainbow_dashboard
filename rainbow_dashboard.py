@@ -14,7 +14,7 @@ st.markdown("")
 
 
 #***********https://icons.getbootstrap.com/ (for icon)******
-selected = option_menu("Rainbow Dashboard", ["Sales Analysis", "Delivery Analysis", "Store Analysis", "Customer Analysis", "Inventory Analysis"],
+selected = option_menu("Rainbow Dashboard", ["Sales Analysis", "Delivery Analysis", "Store Analysis"],#, "Customer Analysis", "Inventory Analysis"
                        icons=['graph-up-arrow', 'truck',
                               "shop", 'people', 'door-open-fill'],
                        menu_icon="cast",  # for menu icon
@@ -43,7 +43,7 @@ df = get_data_from_csv()
 # with open('style.css') as f:
 #         st.markdown(f'<style>{f.read()}</style>', unsafe_allow_html=True)
 
-if selected == "Store Analysis":
+if selected == "Store Analysis": #for Selecting the field
     with open('style.css') as f:
         st.markdown(f'<style>{f.read()}</style>', unsafe_allow_html=True)
 
@@ -140,7 +140,7 @@ if selected == "Store Analysis":
     y = ["Order number","Channel"],
         
     orientation = "v",
-    barmode = 'stack',
+    barmode = 'overlay',
     title='<b>Branch Performance through Channel<b>',
     color_discrete_sequence=["#0083B8"]
     )
@@ -151,7 +151,25 @@ if selected == "Store Analysis":
 
     st.plotly_chart(fig_hourly, use_container_width=True)
 
+    
 
+    df_se = df.groupby(['Purchase_Date']).agg({'Net Amount':'sum','Cost':'sum'}).reset_index().tail(10)
+    fig_hourly_sales = px.bar(
+    data_frame = df_se,
+    x = "Purchase_Date",
+    y = ["Net Amount","Cost"],
+            
+    orientation = "v",
+    barmode = 'relative',
+    title='<b>Weekly Trend<b>',
+    # color_discrete_sequence=["#0083B8"]
+        )
+    fig_hourly_sales.update_layout(xaxis_title="Salary in Million",
+    yaxis_title="Business Unit",plot_bgcolor="rgba(0,0,0,0)")
+    fig_hourly_sales.update_xaxes(showgrid=False)
+    fig_hourly_sales.update_yaxes(showgrid=False)
+
+    st.plotly_chart(fig_hourly_sales, use_container_width=True)
 
     #Chart-5
     Storage_Cost_By_Month = df.groupby(by=["Branch"]).sum()[["Sales Value"]].round()
@@ -283,9 +301,13 @@ elif selected == "Sales Analysis":
         selection_box5 = st.selectbox("Select Purchase Date",
                                           options=df["Purchase_Date"].unique())
 
+    st.markdown("")
+    df_sel = df.query(
+                "Branch == @selection_box1 ")
+
     
     #Chart-1
-    Storage_Cost_By_Month = df.groupby(by=["Purchase_Date"])[["Profit"]].sum().reset_index().round()
+    Storage_Cost_By_Month = df_sel.groupby(by=["Purchase_Date"])[["Profit"]].sum().reset_index().round()
     fig = px.line(Storage_Cost_By_Month,x = 'Purchase_Date',y='Profit',text=(Storage_Cost_By_Month['Profit']),
     title="<b>Profit Projection</b>"
     )
