@@ -138,12 +138,16 @@ if selected == "Store Analysis":
     data_frame = df_se,
     x = "Branch",
     y = ["Order number","Channel"],
-    opacity = 0.9,
+        
     orientation = "v",
     barmode = 'stack',
     title='<b>Branch Performance through Channel<b>',
     color_discrete_sequence=["#0083B8"]
     )
+    fig_hourly_sales.update_layout(height=650,width=1500,xaxis_title="Salary in Million",
+    yaxis_title="Business Unit",plot_bgcolor="rgba(0,0,0,0)")
+    fig_hourly_sales.update_xaxes(showgrid=False)
+    fig_hourly_sales.update_yaxes(showgrid=False)
 
     st.plotly_chart(fig_hourly, use_container_width=True)
 
@@ -279,11 +283,11 @@ elif selected == "Sales Analysis":
         selection_box5 = st.selectbox("Select Purchase Date",
                                           options=df["Purchase_Date"].unique())
 
-
-
+    
+    #Chart-1
     Storage_Cost_By_Month = df.groupby(by=["Purchase_Date"])[["Profit"]].sum().reset_index().round()
     fig = px.line(Storage_Cost_By_Month,x = 'Purchase_Date',y='Profit',text=(Storage_Cost_By_Month['Profit']),
-    title="<b>Average Delivery Cost by Category</b>"
+    title="<b>Profit Projection</b>"
     )
     fig.update_layout(xaxis_title="Item Category",
     yaxis_title="Profit",
@@ -294,3 +298,41 @@ elif selected == "Sales Analysis":
     fig.update_traces(marker_color="#3EC1CD")
 
     st.plotly_chart(fig,use_container_width=True)
+
+
+    #Chart-2
+    st.markdown("<h4 style='text-align: left; color: black;'>Store vs E-Comm</h4>", unsafe_allow_html=True)
+    df_avg_bu=df.groupby(["Channel"],as_index=False)['Net Amount'].sum()
+    fig = go.Figure(data=[go.Pie(labels=df_avg_bu['Channel'], values=df_avg_bu['Net Amount'],hole=.5)])         
+    fig.update_layout(height=500,width=600)
+
+    #Chart-3
+    st.markdown("<h4 style='text-align: right; color: black;'>Returned Percentage</h4>", unsafe_allow_html=True)
+    df_avg_bu=df.groupby(["Returned?"],as_index=False)['Returned?'].count()
+    fig1 = go.Figure(data=[go.Pie(labels=df_avg_bu['Returned?'], values=df_avg_bu['Returned?'],hole=.5)])         
+    fig1.update_layout(height=500,width=600)
+
+    left_column,right_column = st.columns(2)
+
+    left_column.plotly_chart(fig,use_container_width=True)
+    right_column.plotly_chart(fig1,use_container_width=True)
+
+
+    df_selection = df.groupby('Purchase_Date').agg({'Net Amount':'sum','Total Cost':'sum'}).reset_index().tail(15)
+    fig_hourly_sales = px.bar(
+    data_frame = df_selection,
+    x = "Purchase_Date",
+    y = ["Net Amount","Total Cost"],
+    opacity = 0.9,
+    orientation = "v",
+    barmode = 'group',
+    title='Weekly Trend',
+    )
+    fig_hourly_sales.update_layout(height=650,width=1500,xaxis_title="Purchase_date",
+    yaxis_title="",plot_bgcolor="rgba(0,0,0,0)")
+    fig_hourly_sales.update_xaxes(showgrid=False)
+    fig_hourly_sales.update_yaxes(showgrid=False)
+
+    st.plotly_chart(fig_hourly_sales,use_container_width=True)
+
+
