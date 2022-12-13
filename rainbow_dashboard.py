@@ -1,3 +1,5 @@
+#importing module
+
 import streamlit as st
 from streamlit_option_menu import option_menu
 import pandas as pd
@@ -47,7 +49,7 @@ if selected == "Store Analysis": #for Selecting the field
     with open('style.css') as f:
         st.markdown(f'<style>{f.read()}</style>', unsafe_allow_html=True)
 
-    col1, col2, col3, col4 = st.columns(4)
+    col1, col2, col3, col4 = st.columns(4)   
 
     with col1:
        # st.markdown("Select Branches")
@@ -78,7 +80,7 @@ if selected == "Store Analysis": #for Selecting the field
     gross_margin = (
                      (df_selection['Profit'].sum()/df_selection['Net Amount'].sum()) * 100).round()
 
-    left_column, middle_column, right_column = st.columns(3)
+    left_column, middle_column, right_column = st.columns(3)  
 
     with left_column:
             st.markdown("<h4 style='text-align: center; color: black;'>Total Sales</h4>", unsafe_allow_html=True)
