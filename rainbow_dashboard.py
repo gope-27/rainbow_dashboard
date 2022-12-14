@@ -35,6 +35,8 @@ selected = option_menu("Rainbow Dashboard", ["Sales Analysis","Store Analysis", 
 def get_data_from_csv():
     df = pd.read_csv("Rainbow_Final_Dataset.csv"
                      )
+    index_list = list(range(2698, 2814))
+    df.drop(df.index[index_list], inplace =True)
     return df
 
 
