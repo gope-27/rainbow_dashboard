@@ -1,5 +1,3 @@
-#importing module
-
 import streamlit as st
 from streamlit_option_menu import option_menu
 import pandas as pd
@@ -16,7 +14,7 @@ st.markdown("")
 
 
 #***********https://icons.getbootstrap.com/ (for icon)******
-selected = option_menu("Rainbow Dashboard", ["Sales Analysis", "Delivery Analysis", "Store Analysis"],#, "Customer Analysis", "Inventory Analysis"
+selected = option_menu("Rainbow Dashboard", ["Sales Analysis","Store Analysis", "Delivery Analysis", ],#, "Customer Analysis", "Inventory Analysis"
                        icons=['graph-up-arrow', 'truck',
                               "shop", 'people', 'door-open-fill'],
                        menu_icon="cast",  # for menu icon
@@ -49,7 +47,7 @@ if selected == "Store Analysis": #for Selecting the field
     with open('style.css') as f:
         st.markdown(f'<style>{f.read()}</style>', unsafe_allow_html=True)
 
-    col1, col2, col3, col4 = st.columns(4)   
+    col1, col2, col3, col4 = st.columns(4)
 
     with col1:
        # st.markdown("Select Branches")
@@ -80,7 +78,7 @@ if selected == "Store Analysis": #for Selecting the field
     gross_margin = (
                      (df_selection['Profit'].sum()/df_selection['Net Amount'].sum()) * 100).round()
 
-    left_column, middle_column, right_column = st.columns(3)  
+    left_column, middle_column, right_column = st.columns(3)
 
     with left_column:
             st.markdown("<h4 style='text-align: center; color: black;'>Total Sales</h4>", unsafe_allow_html=True)
@@ -174,6 +172,25 @@ if selected == "Store Analysis": #for Selecting the field
     st.plotly_chart(fig_hourly_sales, use_container_width=True)
 
     #Chart-5
+    df_se = df.groupby(['Purchase_Date']).agg({'Net Amount':'sum','Cost':'sum'}).reset_index()
+    fig_hourly_sales = px.bar(
+    data_frame = df_se,
+    x = "Purchase_Date",
+    y = ["Net Amount","Cost"],
+            
+    orientation = "v",
+    barmode = 'group',
+    title='<b>Weekly Trend<b>',
+    # color_discrete_sequence=["#0083B8"]
+        )
+    fig_hourly_sales.update_layout(xaxis_title="Salary in Million",
+    yaxis_title="Business Unit",plot_bgcolor="rgba(0,0,0,0)")   
+    fig_hourly_sales.update_xaxes(showgrid=False)
+    fig_hourly_sales.update_yaxes(showgrid=False)
+
+    st.plotly_chart(fig_hourly_sales, use_container_width=True)
+
+    #Chart-6
     Storage_Cost_By_Month = df.groupby(by=["Branch"]).sum()[["Sales Value"]].round()
     # Storage_Cost_By_Month = Storage_Cost_By_Month .sort_values(by="Sales Value")
 
@@ -210,8 +227,12 @@ elif selected == "Delivery Analysis":
         selection_box3 = st.selectbox("Select Item Category",
                                           options=df["Item Category"].unique())
     
+    # df_se = df.query(
+    #             "Branch == @selection_box1 ")
+
     df_se = df.query(
-                "Branch == @selection_box1 ")
+    "Branch == @selection_box1 "
+)
     
     st.markdown("")
 
