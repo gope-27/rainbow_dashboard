@@ -112,6 +112,8 @@ if selected == "Store Analysis": #for Selecting the field
     left_column.plotly_chart(fig, use_container_width=True)
     right_column.plotly_chart(fig1, use_container_width=True)
 
+    st.markdown("")
+
     #Chart3
     df1 = df.groupby(['Branch']).agg({'Net Amount':'sum','Total Cost':'sum'}).reset_index()
     fig_hourly_sales = px.bar(
@@ -130,6 +132,8 @@ if selected == "Store Analysis": #for Selecting the field
     #fig_hourly_sales.update_traces(marker_color="#fb7373")
 
     st.plotly_chart(fig_hourly_sales, use_container_width=True)
+
+    st.markdown("")
 
     # #chart-4
     df_se = df.groupby(['Branch','Channel']).agg({'Order number':'count'}).reset_index()
@@ -150,6 +154,7 @@ if selected == "Store Analysis": #for Selecting the field
 
     st.plotly_chart(fig_hourly_sales, use_container_width=True)
 
+    st.markdown("")
     
     #Chart - 5
     df_se = df.groupby(['Purchase_Date']).agg({'Net Amount':'sum','Cost':'sum'}).reset_index().tail(10)
@@ -169,6 +174,8 @@ if selected == "Store Analysis": #for Selecting the field
 
     st.plotly_chart(fig_hourly_sales, use_container_width=True)
 
+    st.markdown("")
+
     #Chart-5
     df_se = df.groupby(['Purchase_Date']).agg({'Net Amount':'sum','Cost':'sum'}).reset_index()
     fig_hourly_sales = px.bar(
@@ -187,6 +194,8 @@ if selected == "Store Analysis": #for Selecting the field
     fig_hourly_sales.update_yaxes(showgrid=False)
 
     st.plotly_chart(fig_hourly_sales, use_container_width=True)
+
+    st.markdown("") 
 
     #Chart-6
     Storage_Cost_By_Month = df.groupby(by=["Branch"]).sum()[["Sales Value"]].round()
@@ -281,6 +290,8 @@ elif selected == "Delivery Analysis":
     left_column.plotly_chart(fig,use_container_width=True)
     right_column.plotly_chart(fig1,use_container_width=True)
 
+    st.markdown("") 
+
     #Chart3
     Storage_Cost_By_Month= df.groupby(by=["Item Category"]).mean()[["Delivery Cost"]].round(2).head(15).reset_index()
     fig = px.line(Storage_Cost_By_Month,x = 'Item Category',y='Delivery Cost',text=(Storage_Cost_By_Month['Delivery Cost']),
@@ -296,6 +307,8 @@ elif selected == "Delivery Analysis":
 
 
     st.plotly_chart(fig,use_container_width=True)
+
+    st.markdown("")
 
     #Chart-4
     df1 = df.groupby(['Delivery Agent']).agg({'Delivery Time':'mean'}).reset_index().round(2)
@@ -324,6 +337,8 @@ elif selected == "Delivery Analysis":
     #figure.update_traces(marker_color="#3EC1CD")
 
     st.plotly_chart(figure,use_container_width=True)
+
+    st.markdown("")
 
 
 elif selected == "Sales Analysis":
@@ -405,6 +420,9 @@ elif selected == "Sales Analysis":
 
     st.plotly_chart(fig,use_container_width=True)
 
+    st.markdown("") 
+
+    #Chart-2
     df_selection = df.groupby('Purchase_Date').agg({'Net Amount':'sum','Total Cost':'sum'}).reset_index().tail(7)
     fig_hourly_sales = px.bar(
     data_frame = df_selection,
@@ -421,6 +439,8 @@ elif selected == "Sales Analysis":
     fig_hourly_sales.update_yaxes(showgrid=False)
 
     st.plotly_chart(fig_hourly_sales,use_container_width=True)
+
+    st.markdown("") 
 
     #Chart-4
     df_se = df.groupby(['Branch']).agg({'Net Amount':'sum','Cost':'sum'}).reset_index()
@@ -457,7 +477,7 @@ elif selected == "Sales Analysis":
     left_column.plotly_chart(fig,use_container_width=True)
     right_column.plotly_chart(fig1,use_container_width=True)
     
-
+    st.markdown("")
     #chart-4
     df_se = df.groupby(['Branch']).agg({'Net Amount':'sum','Cost':'sum'}).reset_index()
     top10 = df_se.nlargest(7,'Net Amount')
@@ -478,16 +498,14 @@ elif selected == "Sales Analysis":
 
     st.plotly_chart(fig_hourly_sales,use_container_width=True)
 
-
+    st.markdown("")
+    st.markdown("")
     #Char-4
     df1 = df.groupby(['Branch']).agg({'Net Amount':'sum','Cost':'sum','Profit':'sum','gross_margin':'mean','CustID':'count'}).reset_index().round()
 
     st.table(df1)
 
 if selected == "Customer Analysis":
-
-
-
 
     Storage_Cost_By_Month = df.groupby(['Customer name']).agg({'Profit':'sum'}).reset_index().round()
     top10 = Storage_Cost_By_Month.nlargest(10, ['Profit'])
@@ -529,6 +547,8 @@ if selected == "Customer Analysis":
     col1.plotly_chart(fig_hourly_sales,use_container_width=True)
     col2.plotly_chart(fig,use_container_width=True)
 
+    st.markdown("")
+
     #chart-3
    # df_inn = pd.read_csv("Innovation Customer table.csv")
     Storage_Cost_By_Month = df_inn.groupby(['Customer name']).agg({'Total Purchase Till Date in Rupees':'sum'}).reset_index().round()
@@ -540,7 +560,7 @@ if selected == "Customer Analysis":
     text = "Total Purchase Till Date in Rupees",
     orientation = "v",
     #barmode = 'group',
-    title='<b>Top Customers by totl purchase made till date<b>',
+    title='<b>Top Customers by total purchase made till date<b>',
     # color_discrete_sequence=["#0083B8"]
         )
     fig_hourly_sales.update_layout(xaxis_title="Customer name",
@@ -591,18 +611,10 @@ if selected == "Customer Analysis":
     col2.plotly_chart(fig_hourl,use_container_width=True)
     col3.plotly_chart(fig,use_container_width=True)
 
+    st.markdown("")
+    st.markdown("")
+   
     #Char-4
+    st.subheader("Average of Total Return, Total Purchase, Age by Cities")
     tab = df_inn.groupby(['City']).agg({'Age':'mean','Total Purchase Till Date in Rupees':'mean','Total Returns Till Date in Rupees':'mean'}).reset_index().round()
-
-
     st.table(tab)
-
-    # ---- HIDE STREAMLIT STYLE ----
-    hide_st_style = """
-            <style>
-            #MainMenu {visibility: hidden;}
-            footer {visibility: hidden;}
-            header {visibility: hidden;}
-            </style>
-            """
-    st.markdown(hide_st_style, unsafe_allow_html=True)
