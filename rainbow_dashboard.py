@@ -45,7 +45,7 @@ def get_data_from_csv():
 df ,df_inn= get_data_from_csv()
 
 if selected == "Store Analysis": #for Selecting the field
-    with open('style.css') as f:
+    with open('style1.css') as f:
         st.markdown(f'<style>{f.read()}</style>', unsafe_allow_html=True)
 
     col1, col2, col3, col4 = st.columns(4)
@@ -327,6 +327,41 @@ elif selected == "Delivery Analysis":
 
 
 elif selected == "Sales Analysis":
+
+
+    st.markdown("")
+
+    with open('style1.css') as f:
+        st.markdown(f'<style>{f.read()}</style>', unsafe_allow_html=True)
+
+        
+    #TOTALSALES
+    total_sales = df['Net Amount'].sum()
+
+    #TOTAL_ORDERS
+    total_orders = df['Order number'].count()
+
+   #Gross MARGIN
+    Basket_Size = df['Qty'].sum()/df['Order number'].count()
+    Basket_Size.round()
+    left_column, middle_column, right_column = st.columns(3)
+
+    with left_column:
+            st.markdown("<h4 style='text-align: center; color: black;'>Total Sales</h4>", unsafe_allow_html=True)
+            if total_sales <= 999999:
+            #st.markdown("<h4 style='text-align: center; color: #ff4b4c;'>"+str(round(total_sales  /1000000,2))+"M"+"</h4>", unsafe_allow_html=True) 
+            #st.markdown("<h4 style='text-align: center; color: #ff4b4c;'>"+str(total_sales)+"</h4>", unsafe_allow_html=True)  
+                st.markdown("<h4 style='text-align: center; color: #ff4b4c;'>"+str(round(total_sales/1000,2))+"k"+"</h4>", unsafe_allow_html=True) 
+            elif total_sales >= 99999:
+                st.markdown("<h4 style='text-align: center; color: #ff4b4c;'>"+str(round(total_sales  /1000000,2))+"M"+"</h4>", unsafe_allow_html=True)
+            
+    with middle_column:
+                st.markdown("<h4 style='text-align: center; color: black;'>Total Orders</h4>", unsafe_allow_html=True)
+                st.markdown("<h4 style='text-align: center; color: #ff4b4c;'>"+str(round(total_orders ))+"</h4>", unsafe_allow_html=True)
+        
+    with right_column:
+                st.markdown("<h4 style='text-align: center; color: black;'>Basket Size</h4>", unsafe_allow_html=True)
+                st.markdown("<h4 style='text-align: center; color: #ff4b4c;'>"+str(round(Basket_Size))+"</h4>", unsafe_allow_html=True)
     
     col1, col2, col3,col4,col5,col6= st.columns(6)
 
@@ -450,6 +485,10 @@ elif selected == "Sales Analysis":
     st.table(df1)
 
 if selected == "Customer Analysis":
+
+
+
+
     Storage_Cost_By_Month = df.groupby(['Customer name']).agg({'Profit':'sum'}).reset_index().round()
     top10 = Storage_Cost_By_Month.nlargest(10, ['Profit'])
     fig_hourly_sales = px.bar(
@@ -558,3 +597,12 @@ if selected == "Customer Analysis":
 
     st.table(tab)
 
+    # ---- HIDE STREAMLIT STYLE ----
+    hide_st_style = """
+            <style>
+            #MainMenu {visibility: hidden;}
+            footer {visibility: hidden;}
+            header {visibility: hidden;}
+            </style>
+            """
+    st.markdown(hide_st_style, unsafe_allow_html=True)
