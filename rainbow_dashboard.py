@@ -14,7 +14,7 @@ st.markdown("")
 
 
 #***********https://icons.getbootstrap.com/ (for icon)******
-selected = option_menu("Rainbow Dashboard", ["Sales Analysis","Store Analysis", "Delivery Analysis", ],#, "Customer Analysis", "Inventory Analysis"
+selected = option_menu("Rainbow Dashboard", ["Sales Analysis","Store Analysis", "Delivery Analysis","Customer Analysis" ],#, "Customer Analysis", "Inventory Analysis"
                        icons=['graph-up-arrow', 'truck',
                               "shop", 'people', 'door-open-fill'],
                        menu_icon="cast",  # for menu icon
@@ -31,19 +31,18 @@ selected = option_menu("Rainbow Dashboard", ["Sales Analysis","Store Analysis", 
 #Read csv
 
 
-@st.cache
 def get_data_from_csv():
-    df = pd.read_csv("Rainbow_Final_Dataset.csv"
-                     )
+    df = pd.read_csv("Rainbow_Final_Dataset.csv")
+    df_inn = pd.read_csv("Innovation Customer table.csv")
+    df1 =(df['Profit']/df['Net Amount'] * 100).round()
+    gross_margin = df1
+    df['gross_margin'] = gross_margin
     index_list = list(range(2698, 2814))
     df.drop(df.index[index_list], inplace =True)
-    return df
+    return df,df_inn
 
 
-df = get_data_from_csv()
-
-# with open('style.css') as f:
-#         st.markdown(f'<style>{f.read()}</style>', unsafe_allow_html=True)
+df ,df_inn= get_data_from_csv()
 
 if selected == "Store Analysis": #for Selecting the field
     with open('style.css') as f:
@@ -52,7 +51,6 @@ if selected == "Store Analysis": #for Selecting the field
     col1, col2, col3, col4 = st.columns(4)
 
     with col1:
-       # st.markdown("Select Branches")
         selection_box1 = st.selectbox("Select Branches",
                                           options=df["Branch"].unique())
     with col2:
@@ -64,7 +62,6 @@ if selected == "Store Analysis": #for Selecting the field
     with col4:
         selection_box4 = st.selectbox("Select Date",
                                           options=df["Purchase_Date"].unique())
-    #df = get_data_from_csv()
     df_selection = df.query(
                 "Branch == @selection_box1 ")#& Channel == @selection_box2 & isWeekday == @selection_box3 & Purchase_Date == @selection_box4")
                                 
@@ -85,7 +82,7 @@ if selected == "Store Analysis": #for Selecting the field
     with left_column:
             st.markdown("<h4 style='text-align: center; color: black;'>Total Sales</h4>", unsafe_allow_html=True)
             if total_sales <= 999999:
-        #st.markdown("<h4 style='text-align: center; color: #ff4b4c;'>"+str(round(total_sales  /1000000,2))+"M"+"</h4>", unsafe_allow_html=True) 
+            #st.markdown("<h4 style='text-align: center; color: #ff4b4c;'>"+str(round(total_sales  /1000000,2))+"M"+"</h4>", unsafe_allow_html=True) 
             #st.markdown("<h4 style='text-align: center; color: #ff4b4c;'>"+str(total_sales)+"</h4>", unsafe_allow_html=True)  
                 st.markdown("<h4 style='text-align: center; color: #ff4b4c;'>"+str(round(total_sales/1000,2))+"k"+"</h4>", unsafe_allow_html=True) 
             elif total_sales >= 99999:
@@ -126,48 +123,47 @@ if selected == "Store Analysis": #for Selecting the field
     barmode = 'group',
     title='<b>Branch Performance<b>',
     )
-    fig_hourly_sales.update_layout(height=650,width=1500,xaxis_title="Salary in Million",
-    yaxis_title="Business Unit",plot_bgcolor="rgba(0,0,0,0)")
+    fig_hourly_sales.update_layout(xaxis_title="Branch",
+    yaxis_title="SUM of Net Amount and Total Cost",plot_bgcolor="rgba(0,0,0,0)")
     fig_hourly_sales.update_xaxes(showgrid=False)
     fig_hourly_sales.update_yaxes(showgrid=False)
     #fig_hourly_sales.update_traces(marker_color="#fb7373")
 
     st.plotly_chart(fig_hourly_sales, use_container_width=True)
 
-    #chart-4
-    df_se = df.groupby(['Branch']).agg({'Order number':'count','Channel':'count'}).reset_index()
-    fig_hourly = px.bar(
+    # #chart-4
+    df_se = df.groupby(['Branch','Channel']).agg({'Order number':'count'}).reset_index()
+  
+    fig_hourly_sales = px.bar(
     data_frame = df_se,
     x = "Branch",
-    y = ["Order number","Channel"],
-        
-    orientation = "v",
-    barmode = 'overlay',
-    title='<b>Branch Performance through Channel<b>',
-    color_discrete_sequence=["#0083B8"]
-    )
-    fig_hourly_sales.update_layout(height=650,width=1500,xaxis_title="Salary in Million",
-    yaxis_title="Business Unit",plot_bgcolor="rgba(0,0,0,0)")
+    y = ["Order number"],
+    color="Channel",    
+    barmode = 'stack',
+    title='<b>Branch Performance through Channel<b>'
+        )
+
+    fig_hourly_sales.update_layout(xaxis_title="Branch",
+    yaxis_title="Order Count",plot_bgcolor="rgba(0,0,0,0)")
     fig_hourly_sales.update_xaxes(showgrid=False)
     fig_hourly_sales.update_yaxes(showgrid=False)
 
-    st.plotly_chart(fig_hourly, use_container_width=True)
+    st.plotly_chart(fig_hourly_sales, use_container_width=True)
 
     
-
+    #Chart - 5
     df_se = df.groupby(['Purchase_Date']).agg({'Net Amount':'sum','Cost':'sum'}).reset_index().tail(10)
     fig_hourly_sales = px.bar(
     data_frame = df_se,
     x = "Purchase_Date",
-    y = ["Net Amount","Cost"],
-            
+    y = ["Net Amount","Cost"], 
     orientation = "v",
-    barmode = 'relative',
+    barmode = 'group',
     title='<b>Weekly Trend<b>',
     # color_discrete_sequence=["#0083B8"]
         )
-    fig_hourly_sales.update_layout(xaxis_title="Salary in Million",
-    yaxis_title="Business Unit",plot_bgcolor="rgba(0,0,0,0)")
+    fig_hourly_sales.update_layout(xaxis_title="Purchase Date",
+    yaxis_title="SUM of Net Amount and Cost",plot_bgcolor="rgba(0,0,0,0)")
     fig_hourly_sales.update_xaxes(showgrid=False)
     fig_hourly_sales.update_yaxes(showgrid=False)
 
@@ -182,10 +178,10 @@ if selected == "Store Analysis": #for Selecting the field
             
     orientation = "v",
     barmode = 'group',
-    title='<b>Weekly Trend<b>',
-    # color_discrete_sequence=["#0083B8"]
+    title='<b>Monthly Trend<b>',
+        # color_discrete_sequence=["#0083B8"]
         )
-    fig_hourly_sales.update_layout(xaxis_title="Salary in Million",
+    fig_hourly_sales.update_layout(xaxis_title="Purchase Date",
     yaxis_title="Business Unit",plot_bgcolor="rgba(0,0,0,0)")   
     fig_hourly_sales.update_xaxes(showgrid=False)
     fig_hourly_sales.update_yaxes(showgrid=False)
@@ -202,8 +198,8 @@ if selected == "Store Analysis": #for Selecting the field
     orientation="h",
     title="<b>Branch wise Sales</b>",
     text=(Storage_Cost_By_Month['Sales Value']),color_discrete_sequence=["#0083B8"])
-    fig_hourly_sales.update_layout(height=650,width=1500,xaxis_title="Salary in Million",
-    yaxis_title="Business Unit",plot_bgcolor="rgba(0,0,0,0)")
+    fig_hourly_sales.update_layout(height=650,width=1500,xaxis_title="Branch",
+    yaxis_title="SUM Of Sales Values",plot_bgcolor="rgba(0,0,0,0)")
     fig_hourly_sales.update_xaxes(showgrid=False)
     fig_hourly_sales.update_yaxes(showgrid=False)
     #fig_hourly_sales.update_traces(marker_color="#fb7373")
@@ -279,7 +275,7 @@ elif selected == "Delivery Analysis":
     yaxis_title="Sum of Net Amount",
     plot_bgcolor="rgba(0,0,0,0)",
     yaxis=(dict(showgrid=False)))
-    fig1.update_traces(marker_color="#3EC1CD")
+    #fig1.update_traces(marker_color="#3EC1CD")
 
     left_column,right_column = st.columns(2)
     left_column.plotly_chart(fig,use_container_width=True)
@@ -296,10 +292,38 @@ elif selected == "Delivery Analysis":
     yaxis=(dict(showgrid=False)),
     xaxis=(dict(showgrid=False))
     )
-    fig.update_traces(marker_color="#3EC1CD")
+    #fig.update_traces(marker_color="#3EC1CD")
 
 
     st.plotly_chart(fig,use_container_width=True)
+
+    #Chart-4
+    df1 = df.groupby(['Delivery Agent']).agg({'Delivery Time':'mean'}).reset_index().round(2)
+    data0 = go.Scatter(x = df1['Delivery Agent'],
+                    y = df1['Delivery Time'],
+                    name = 'AVG Delivery Time',
+                    text =  df1['Delivery Time'],
+                    # textposition = 'top left',
+                    mode = 'markers + lines')
+
+
+    df2 = df.groupby(['Delivery Agent']).agg({'Delivery Cost':'mean'}).reset_index().round(2)
+    data1 = go.Bar(y = df2['Delivery Cost'],
+                    x = df2['Delivery Agent'],
+                    name = 'AVG Delivery Cost',
+                    text = df2['Delivery Cost'],
+                    textposition = 'outside',)
+
+    data = [data0,data1]
+    layout = go.Layout(title = "Average Delivery Time & Cost by Delivery Partners",barmode = 'stack')
+    figure = go.Figure(data = data,layout = layout)
+    figure.update_layout(xaxis_title="Product",
+    yaxis_title="Sum of Net Amount",
+    plot_bgcolor="rgba(0,0,0,0)",
+    yaxis=(dict(showgrid=False)))
+    #figure.update_traces(marker_color="#3EC1CD")
+
+    st.plotly_chart(figure,use_container_width=True)
 
 
 elif selected == "Sales Analysis":
@@ -346,6 +370,40 @@ elif selected == "Sales Analysis":
 
     st.plotly_chart(fig,use_container_width=True)
 
+    df_selection = df.groupby('Purchase_Date').agg({'Net Amount':'sum','Total Cost':'sum'}).reset_index().tail(7)
+    fig_hourly_sales = px.bar(
+    data_frame = df_selection,
+    x = "Purchase_Date",
+    y = ["Net Amount","Total Cost"],
+    opacity = 0.9,
+    orientation = "v",
+    barmode = 'group',  
+    title='Weekly Trend'
+    )
+    fig_hourly_sales.update_layout(height=650,width=1500,xaxis_title="Purchase_date",
+    yaxis_title="",plot_bgcolor="rgba(0,0,0,0)")
+    fig_hourly_sales.update_xaxes(showgrid=False)
+    fig_hourly_sales.update_yaxes(showgrid=False)
+
+    st.plotly_chart(fig_hourly_sales,use_container_width=True)
+
+    #Chart-4
+    df_se = df.groupby(['Branch']).agg({'Net Amount':'sum','Cost':'sum'}).reset_index()
+    top10 = df_se.nlargest(7,'Net Amount')
+    fig_hourly_sales = px.bar(
+    data_frame = top10,
+    x = "Branch",
+    y = ["Net Amount","Cost"],
+            
+    orientation = "v",
+    barmode = 'stack',
+    title='<b>Weekly Trend<b>',
+    # color_discrete_sequence=["#0083B8"]
+        )
+    fig_hourly_sales.update_layout(xaxis_title="Salary in Million",
+    yaxis_title="Business Unit",plot_bgcolor="rgba(0,0,0,0)")
+    fig_hourly_sales.update_xaxes(showgrid=False)
+    fig_hourly_sales.update_yaxes(showgrid=False)
 
     #Chart-2
     st.markdown("<h4 style='text-align: left; color: black;'>Store vs E-Comm</h4>", unsafe_allow_html=True)
@@ -363,23 +421,140 @@ elif selected == "Sales Analysis":
 
     left_column.plotly_chart(fig,use_container_width=True)
     right_column.plotly_chart(fig1,use_container_width=True)
+    
 
-
-    df_selection = df.groupby('Purchase_Date').agg({'Net Amount':'sum','Total Cost':'sum'}).reset_index().tail(15)
+    #chart-4
+    df_se = df.groupby(['Branch']).agg({'Net Amount':'sum','Cost':'sum'}).reset_index()
+    top10 = df_se.nlargest(7,'Net Amount')
     fig_hourly_sales = px.bar(
-    data_frame = df_selection,
-    x = "Purchase_Date",
-    y = ["Net Amount","Total Cost"],
-    opacity = 0.9,
+    data_frame = top10,
+    x = "Branch",
+    y = ["Net Amount","Cost"],
+            
     orientation = "v",
-    barmode = 'group',
-    title='Weekly Trend',
-    )
-    fig_hourly_sales.update_layout(height=650,width=1500,xaxis_title="Purchase_date",
-    yaxis_title="",plot_bgcolor="rgba(0,0,0,0)")
+    barmode = 'stack',
+    title='<b>Top Performing Branches<b>',
+    # color_discrete_sequence=["#0083B8"]
+        )
+    fig_hourly_sales.update_layout(xaxis_title="Branch",
+    yaxis_title="Business Unit",plot_bgcolor="rgba(0,0,0,0)")
     fig_hourly_sales.update_xaxes(showgrid=False)
     fig_hourly_sales.update_yaxes(showgrid=False)
 
     st.plotly_chart(fig_hourly_sales,use_container_width=True)
 
+
+    #Char-4
+    df1 = df.groupby(['Branch']).agg({'Net Amount':'sum','Cost':'sum','Profit':'sum','gross_margin':'mean','CustID':'count'}).reset_index().round()
+
+    st.table(df1)
+
+if selected == "Customer Analysis":
+    Storage_Cost_By_Month = df.groupby(['Customer name']).agg({'Profit':'sum'}).reset_index().round()
+    top10 = Storage_Cost_By_Month.nlargest(10, ['Profit'])
+    fig_hourly_sales = px.bar(
+    data_frame = top10,
+    x = "Customer name",
+    y = "Profit",
+    text = "Profit",
+    orientation = "v",
+    #barmode = 'group',
+    title='<b>Most Valuable Customers<b>',
+    # color_discrete_sequence=["#0083B8"]
+        )
+    fig_hourly_sales.update_layout(xaxis_title="Customer name",
+    yaxis_title="Business Unit",plot_bgcolor="rgba(0,0,0,0)")
+    fig_hourly_sales.update_xaxes(showgrid=False)
+    fig_hourly_sales.update_yaxes(showgrid=False)
+
+    #Chart-2
+    Storage = df.groupby(['Customer name']).agg({'Profit':'sum'}).reset_index().round()
+    top10 = Storage.nlargest(10, ['Profit'])
+    fig = px.bar(
+    data_frame = top10,
+    x = "Customer name",
+    y = "Profit",
+    text = "Profit",
+    orientation = "v",
+    #barmode = 'group',
+    title='<b>Regular Customers<b>',
+    # color_discrete_sequence=["#0083B8"]
+        )
+    fig.update_layout(xaxis_title="Customer name",
+    yaxis_title="Business Unit",plot_bgcolor="rgba(0,0,0,0)")
+    fig.update_xaxes(showgrid=False)
+    fig.update_yaxes(showgrid=False)
+
+    col1,col2 = st.columns(2)
+
+    col1.plotly_chart(fig_hourly_sales,use_container_width=True)
+    col2.plotly_chart(fig,use_container_width=True)
+
+    #chart-3
+   # df_inn = pd.read_csv("Innovation Customer table.csv")
+    Storage_Cost_By_Month = df_inn.groupby(['Customer name']).agg({'Total Purchase Till Date in Rupees':'sum'}).reset_index().round()
+    top10 = Storage_Cost_By_Month.nlargest(10, ['Total Purchase Till Date in Rupees'])
+    fig_hourly_sales = px.line(
+    data_frame = top10,
+    x = "Customer name",
+    y = "Total Purchase Till Date in Rupees",
+    text = "Total Purchase Till Date in Rupees",
+    orientation = "v",
+    #barmode = 'group',
+    title='<b>Top Customers by totl purchase made till date<b>',
+    # color_discrete_sequence=["#0083B8"]
+        )
+    fig_hourly_sales.update_layout(xaxis_title="Customer name",
+    yaxis_title="",plot_bgcolor="rgba(0,0,0,0)")
+    fig_hourly_sales.update_xaxes(showgrid=False)
+    fig_hourly_sales.update_yaxes(showgrid=False)
+
+    #Chart-4
+    dd = df.groupby(['Customer Regularity']).agg({'CustID':'count'}).reset_index()
+    fig_hourl = px.bar(
+    data_frame = dd,
+    x = "Customer Regularity",
+    y = "CustID",
+    text = "CustID",
+    orientation = "v",
+    #barmode = 'group',
+    title='<b>Customer Regularity till date<b>',
+    # color_discrete_sequence=["#0083B8"]
+        )
+    fig_hourl.update_layout(xaxis_title="Customer name",
+    yaxis_title="",plot_bgcolor="rgba(0,0,0,0)")
+    fig_hourl.update_xaxes(showgrid=False)
+    fig_hourl.update_yaxes(showgrid=False)
+
+
+    #Chart-5
+    Storage_Cost_By_Month = df_inn.groupby(['City']).agg({'Average Ticket Size':'mean'}).reset_index().round()
+    #Storage_Cost_By_Month = df1.groupby(['City']).agg({'Average Ticket Size':'mean'}).reset_index().round()
+    top10 = Storage_Cost_By_Month.nlargest(10, ['Average Ticket Size'])
+    fig = px.line(
+    data_frame = top10,
+    x = "City",
+    y = "Average Ticket Size",
+    text = "Average Ticket Size",
+    orientation = "v",
+    #barmode = 'group',
+    title='<b>Average Ticket Size by city<b>',
+    # color_discrete_sequence=["#0083B8"]
+        )
+    fig.update_layout(xaxis_title="Customer name",
+    yaxis_title="",plot_bgcolor="rgba(0,0,0,0)")
+    fig.update_xaxes(showgrid=False)
+    fig.update_yaxes(showgrid=False)
+
+    col1,col2,col3 = st.columns(3)
+
+    col1.plotly_chart(fig_hourly_sales,use_container_width=True)
+    col2.plotly_chart(fig_hourl,use_container_width=True)
+    col3.plotly_chart(fig,use_container_width=True)
+
+    #Char-4
+    tab = df_inn.groupby(['City']).agg({'Age':'mean','Total Purchase Till Date in Rupees':'mean','Total Returns Till Date in Rupees':'mean'}).reset_index().round()
+
+
+    st.table(tab)
 
